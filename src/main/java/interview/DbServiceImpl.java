@@ -28,8 +28,8 @@ public class DbServiceImpl implements DbService {
             dbValues.put(((Client)data).getName(), data);
         }
         if(data instanceof Car){
-            dbValues.get(((Car)data).reg);
-            dbValues.put(((Car)data).reg, data);
+            dbValues.get(((Car)data).getReg());
+            dbValues.put(((Car)data).getReg(), data);
         }
         return data;
     }

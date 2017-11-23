@@ -1,10 +1,13 @@
 package interview;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.util.Vector;
 
 public class Client {
     private String name;
-    String licenseNumber;
+    private String licenseNumber;
     private String cd;
     private Vector records;
     public Client(String name, String licenseNumber, String cd) {
@@ -34,6 +37,16 @@ public class Client {
             records = new Vector();
         }
         records.add(r);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o, true);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this, true);
     }
 
     @Override
