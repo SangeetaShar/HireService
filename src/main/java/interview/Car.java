@@ -43,6 +43,7 @@ public class Car {
     public void release(DbService dbService, String cd) throws SQLException {
         hireNumber = 0;
         hireEnd = null;
+        hired=false;
         dbService.saveToDatabase(this, cd);
     }
     //disabled

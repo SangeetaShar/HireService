@@ -10,89 +10,52 @@ import java.util.concurrent.CyclicBarrier;
 public class RunHireService {
 
     public static void main(String[] args) throws BrokenBarrierException, InterruptedException, SQLException {
+        long hire =0;
         DbServiceImpl db = new DbServiceImpl();
         HireService hireService  = new HireService();
         hireService.setDb(db);
 
-        final CyclicBarrier gate = runThreadsForHiring(hireService);
+        final CyclicBarrier gate = new CyclicBarrier(5);
+        HireRunnable hr1 = new HireRunnable("HR1", hireService, gate,"test1","l1","reg1");
+        HireRunnable hr2 = new HireRunnable("HR2", hireService, gate,"test1","l1","reg1");
+        HireRunnable hr3 = new HireRunnable("HR3", hireService, gate,"test1","l1","reg1");
+        HireRunnable hr4 = new HireRunnable("HR4", hireService, gate,"test1","l1","reg1");
+        hr1.start();
+        hr2.start();
+        hr3.start();
+        hr4.start();
 
-// At this point, t1 and t2 are blocking on the gate.
-// Since we gave "3" as the argument, gate is not opened yet.
-// Now if we block on the gate from the main thread, it will open
-// and all threads will start to do stuff!
         gate.await();
-        String hire = hireService.hire("test5", "l4", "cd1", "reg1", "2017-11-22",4, 30.0);
-        System.out.println(" main thread:  Message:: "  + hire);
         System.out.println("all threads started");
 
+        Thread.sleep(1000);
+        if(hr1.getHire()>0){
+            hire = hr1.getHire();
+        }
+        if(hr2.getHire()>0){
+            hire = hr2.getHire();
+        }
+        if(hr3.getHire()>0){
+            hire = hr3.getHire();
+        }
+        if(hr4.getHire()>0){
+            hire = hr4.getHire();
+        }
+        System.out.println("Car with Registration rg1 is hired with Hire number " + hire);
+        hireService.hire("test1", "l1", "cd1", "reg1", "2017-11-22", 4, 30.0);
 
+        /*System.out.println("Car with Registration rg1 is now marked as Returned and ready for Hire");
+        hireService.markReturned("cd1", hire);*/
+
+        HireReturnedRunnable hrr1 = new HireReturnedRunnable("HRR1", hireService, gate,hire);
+        hr2 = new HireRunnable("HR2", hireService, gate,"test1","l1","reg1");
+        hr3 = new HireRunnable("HR3", hireService, gate,"test1","l1","reg1");
+        hr4 = new HireRunnable("HR4", hireService, gate,"test1","l1","reg1");
+        hrr1.start();
+        hr2.start();
+        hr3.start();
+        hr4.start();
+        gate.await();
     }
 
-    private static CyclicBarrier runThreadsForHiring(final HireService hireService) {
-        final CyclicBarrier gate = new CyclicBarrier(5);
-        Thread t1 = new Thread(){
-            public void run(){
-                try {
-                    gate.await();
-                    String hire = hireService.hire("test1", "l1", "cd1", "reg1", "2017-11-22",3, 30.0);
-                    System.out.println(" thread: " + getName() + " Message:: " + hire);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (BrokenBarrierException e) {
-                    e.printStackTrace();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }};
-        Thread t2 = new Thread(){
-            public void run(){
-                try {
-                    gate.await();
-                    String hire = hireService.hire("test2", "l2", "cd1", "reg1", "2017-11-22",2, 30.0);
-                    System.out.println(" thread: " + getName() + " Message:: " + hire);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (BrokenBarrierException e) {
-                    e.printStackTrace();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                //do stuff
-            }};
-        Thread t3 = new Thread(){
-            public void run(){
-                try {
-                    gate.await();
-                    String hire = hireService.hire("test3", "l3", "cd1", "reg1", "2017-11-22",1, 30.0);
-                    System.out.println(" thread: " + getName() + " Message:: " + hire);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (BrokenBarrierException e) {
-                    e.printStackTrace();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }};
-        Thread t4 = new Thread(){
-            public void run(){
-                try {
-                    gate.await();
-                    String hire = hireService.hire("test4", "l4", "cd1", "reg1", "2017-11-22",4, 30.0);
-                    System.out.println(" thread: " + getName() + " Message:: "  + hire);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (BrokenBarrierException e) {
-                    e.printStackTrace();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }};
-
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        return gate;
-    }
 }

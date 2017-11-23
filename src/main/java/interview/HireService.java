@@ -15,21 +15,23 @@ public class HireService {
     private DbService db;
     private AtomicLong ai = new AtomicLong(100);
     //called by rest servlet to make booking
-    public String hire(String name, String licenseNumber, String cd, String reg, String start, int days, double rate) throws SQLException {
+    public long hire(String name, String licenseNumber, String cd, String reg, String start, int days, double rate) throws SQLException {
        // boolean hired = false;
         Date startDate = Date.valueOf(start);
         long hireNumber = System.nanoTime();//use as unique id
         Car car = getCarDetails(reg, cd, hireNumber);
         synchronized (car) {
             if (car == null || car.isHired()) {
-                return name + " Sorry your request for car registration number " + car.getReg() + " can not be complete as it is already hired";
+                System.out.println(name + " Sorry your request for car registration number " + car.getReg() + " can not be complete as it is already hired");
+                return -1;
             }
             car.hire(db, cd, startDate, days, hireNumber);
         }
         HireRecord hire = new HireRecord(car, name, startDate, days, rate, hireNumber); //HireRecord - Immutable
         Client client = getClient(name, licenseNumber, cd);
         client.addHirerecrd(hire);
-        return client + " Congratulation you have hired car with registration " + car.getReg() + " and hire number:: " + car.getHireNumber();
+        System.out.println(client + " Congratulation you have hired car with registration " + car.getReg() + " and hire number:: " + car.getHireNumber());
+        return hireNumber;
 
     }
 
@@ -38,6 +40,8 @@ public class HireService {
             //Car car = (Car) db.loadFromDb(cd, "select * from crs where hrrnm = " + hireno, Car.class);
             Car car = (Car) db.loadFromDb(cd, ""+hireno, Car.class);
             car.release(db, cd);
+            db.delete(hireno+"", Car.class, cd);
+            System.out.println("car with Hireno "+hireno+ " marked as returned " + car);
         } catch (SQLException e) {
 //nothing we can do
         }
