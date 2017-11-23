@@ -14,6 +14,7 @@ public class RunHireService {
         DbServiceImpl db = new DbServiceImpl();
         HireService hireService  = new HireService();
         hireService.setDb(db);
+        hireService.setCd("cd");
 
         final CyclicBarrier gate = new CyclicBarrier(5);
         HireRunnable hr1 = new HireRunnable("HR1", hireService, gate,"test1","l1","reg1");
@@ -42,7 +43,7 @@ public class RunHireService {
             hire = hr4.getHire();
         }
         System.out.println("Car with Registration rg1 is hired with Hire number " + hire);
-        hireService.hire("test1", "l1", "cd1", "reg1", "2017-11-22", 4, 30.0);
+        hireService.hire("test1", "l1", "reg1", "2017-11-22", 4, 30.0);
 
         /*System.out.println("Car with Registration rg1 is now marked as Returned and ready for Hire");
         hireService.markReturned("cd1", hire);*/

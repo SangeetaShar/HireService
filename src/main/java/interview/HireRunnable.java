@@ -30,7 +30,7 @@ public class HireRunnable extends Thread {
     public void run() {
         try {
             gate.await();
-            hire = hireService.hire(clientName, licenseNumber, "cd1", carReg, "2017-11-22",4, 30.0);
+            hire = hireService.hire(clientName, licenseNumber, carReg, "2017-11-22",4, 30.0);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (BrokenBarrierException e) {

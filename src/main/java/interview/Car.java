@@ -14,7 +14,7 @@ public class Car {
     private String make;
     private String reg;
     private int category;
-    private volatile boolean hired;
+    private boolean hired;
     private Date hireEnd;
     private int age;
     private volatile long hireNumber;
@@ -32,6 +32,7 @@ public class Car {
     public int getAge() {
         return 2015 - Integer.parseInt("20" +reg.substring(3, 2));
     }
+
     public void hire(DbService dbService, String cd, Date startDate, int days, long hireNumber) throws SQLException {
         this.hired = true;
         hireEnd = new DateTime(startDate.getTime()).plusDays(days).toDate();

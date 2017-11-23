@@ -25,7 +25,7 @@ public class HireReturnedRunnable extends Thread {
     public void run() {
         try {
             gate.await();
-            hireService.markReturned("cd1", hireNumber);
+            hireService.markReturned(hireNumber);
             System.out.println("Thread " + getName());
         } catch (InterruptedException e) {
             e.printStackTrace();
