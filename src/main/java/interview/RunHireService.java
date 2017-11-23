@@ -9,20 +9,33 @@ import java.util.concurrent.CyclicBarrier;
  */
 public class RunHireService {
 
-    public static void main(String[] args) throws BrokenBarrierException, InterruptedException {
+    public static void main(String[] args) throws BrokenBarrierException, InterruptedException, SQLException {
         DbServiceImpl db = new DbServiceImpl();
-
-        final CyclicBarrier gate = new CyclicBarrier(5);
         HireService hireService  = new HireService();
         hireService.setDb(db);
 
+        final CyclicBarrier gate = runThreadsForHiring(hireService);
+
+// At this point, t1 and t2 are blocking on the gate.
+// Since we gave "3" as the argument, gate is not opened yet.
+// Now if we block on the gate from the main thread, it will open
+// and all threads will start to do stuff!
+        gate.await();
+        String hire = hireService.hire("test5", "l4", "cd1", "reg1", "2017-11-22",4, 30.0);
+        System.out.println(" main thread:  Message:: "  + hire);
+        System.out.println("all threads started");
+
+
+    }
+
+    private static CyclicBarrier runThreadsForHiring(final HireService hireService) {
+        final CyclicBarrier gate = new CyclicBarrier(5);
         Thread t1 = new Thread(){
             public void run(){
                 try {
                     gate.await();
                     String hire = hireService.hire("test1", "l1", "cd1", "reg1", "2017-11-22",3, 30.0);
                     System.out.println(" thread: " + getName() + " Message:: " + hire);
-
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (BrokenBarrierException e) {
@@ -30,8 +43,6 @@ public class RunHireService {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-
-                //do stuff
             }};
         Thread t2 = new Thread(){
             public void run(){
@@ -55,7 +66,6 @@ public class RunHireService {
                     gate.await();
                     String hire = hireService.hire("test3", "l3", "cd1", "reg1", "2017-11-22",1, 30.0);
                     System.out.println(" thread: " + getName() + " Message:: " + hire);
-
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (BrokenBarrierException e) {
@@ -63,8 +73,6 @@ public class RunHireService {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-
-                //do stuff
             }};
         Thread t4 = new Thread(){
             public void run(){
@@ -79,25 +87,12 @@ public class RunHireService {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-
-                //do stuff
             }};
 
         t1.start();
         t2.start();
         t3.start();
         t4.start();
-
-// At this point, t1 and t2 are blocking on the gate.
-// Since we gave "3" as the argument, gate is not opened yet.
-// Now if we block on the gate from the main thread, it will open
-// and all threads will start to do stuff!
-
-        gate.await();
-        System.out.println("all threads started");
-
-        //new SimpleThread("test1","l1","reg1", 30.0, 2, db).start();
-        //new SimpleThread("test2", "l1", "reg1", 30.0, 3, db).start();
-
+        return gate;
     }
 }
